@@ -1,4 +1,4 @@
-name: Extract Project ZIP
+name: Extract ZIP
 
 on:
   workflow_dispatch:
@@ -6,59 +6,41 @@ on:
     paths:
       - "*.zip"
 
-permissions:
-  contents: write
-
 jobs:
   extract:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Find ZIP
         id: zip
-        shell: bash
         run: |
-          ZIP=$(find . -maxdepth 1 -type f -iname "*.zip" | head -n 1)
-
-          if [ -z "$ZIP" ]; then
-            echo "ZIP fayl topilmadi."
-            exit 1
-          fi
-
+          ZIP=$(find . -maxdepth 1 -type f -name "*.zip" | head -n 1)
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
 
-      - name: Extract ZIP
-        shell: bash
+      - name: Extract
         run: |
-          ZIP="${{ steps.zip.outputs.zip }}"
-
           mkdir -p extracted
-          unzip -o "$ZIP" -d extracted
+          unzip -o "${{ steps.zip.outputs.zip }}" -d extracted
 
-          # ZIP ichida gidropul-main-fixed/ kabi tashqi papka bo'lsa,
-          # uning ichidagi fayllarni repository root'iga chiqaradi.
-          if [ "$(find extracted -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 1 ] && \
-             [ "$(find extracted -mindepth 1 -maxdepth 1 -type f | wc -l)" -eq 0 ]; then
+          # ZIP ichidan workflowlarni olib tashlash
+          rm -rf extracted/.github/workflows
 
-            ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | head -n 1)
-            cp -a "$ROOT"/. .
+          # Agar ZIP ichida .github qolib ketgan bo'lsa, uni ham tozalash
+          find extracted -name "*.zip" -delete
 
-          else
-            cp -a extracted/. .
-          fi
-
+      - name: Copy files
+        run: |
+          cp -a extracted/. .
           rm -rf extracted
 
       - name: Remove ZIP
-        shell: bash
         run: |
           rm -f "${{ steps.zip.outputs.zip }}"
 
       - name: Commit extracted files
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -66,7 +48,7 @@ jobs:
           git add -A
 
           if git diff --cached --quiet; then
-            echo "O'zgarish yo'q."
+            echo "No changes to commit."
             exit 0
           fi
 
