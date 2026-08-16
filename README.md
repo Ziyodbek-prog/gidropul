@@ -1,6 +1,6 @@
 # HydroCoin Bot
 
-GitHub → Render Free → Neon PostgreSQL → UptimeRobot uchun tayyor loyiha.
+GitHub → Render Free → Neon PostgreSQL uchun tayyor loyiha.
 
 ## Deploy
 1. ZIP'ni GitHub repositoryga yuklang.
@@ -16,8 +16,8 @@ GitHub → Render Free → Neon PostgreSQL → UptimeRobot uchun tayyor loyiha.
 5. Deploy qiling.
 6. Webhook:
    `https://api.telegram.org/botTOKEN/setWebhook?url=https://SERVICE.onrender.com/webhook`
-7. UptimeRobot:
-   `https://SERVICE.onrender.com/health`
+
+Monitoring uchun: `https://SERVICE.onrender.com/health` endpoint mavjud. Uni istalgan tashqi monitoring servisida ishlatishingiz mumkin.
 
 ## Admin
 `/admin`
@@ -56,4 +56,4 @@ Majburiy kanal/guruhda botga membership tekshirish uchun kerakli administrator h
 To'lov proof kanalida bot xabar yubora olishi kerak.
 
 ## Render Free
-Bot webhook rejimida ishlaydi. `/health` endpoint UptimeRobot monitoringi uchun bor. UptimeRobot'ni botni sun'iy ravishda cheksiz uptime qilish kafolati deb qabul qilmang; Render Free resurslari va platforma qoidalari o'zgarishi mumkin.
+Bot webhook rejimida ishlaydi.
