@@ -13,7 +13,22 @@ app=FastAPI(title="HydroCoin Bot")
 bot=Bot(settings.BOT_TOKEN);dp=Dispatcher();setup(dp)
 
 @app.on_event("startup")
-async def startup():await init_db()
+async def startup():
+    await init_db()
+    # WEBHOOK SETUP - Bu qism juda muhim!
+    if settings.WEBHOOK_URL:
+        webhook_url = f"{settings.WEBHOOK_URL}/webhook"
+        try:
+            # Avvalgi webhookni o'chirish
+            await bot.delete_webhook(drop_pending_updates=False)
+            # Yangi webhookni belgilash
+            await bot.set_webhook(
+                url=webhook_url,
+                allowed_updates=["message", "callback_query", "my_chat_member"]
+            )
+            print(f"✅ Webhook set: {webhook_url}")
+        except Exception as e:
+            print(f"❌ Webhook set qilishda xato: {e}")
 
 @app.get("/health")
 async def health():return {"status":"ok"}
@@ -44,7 +59,7 @@ document.getElementById("p").textContent=j.message;if(j.ok)setTimeout(()=>tg.clo
 @app.post("/webapp/verify")
 async def verify(request:Request):
     d=await request.json();token=str(d.get("token",""));tgid=validate_webapp_init_data(d.get("init_data",""))
-    if not tgid:return {"ok":False,"message":"Telegram WebApp tasdig‘i muvaffaqiyatsiz."}
+    if not tgid:return {"ok":False,"message":"Telegram WebApp tasdig'i muvaffaqiyatsiz."}
     h=hashlib.sha256(token.encode()).hexdigest()
     async with Session() as s:
         ws=(await s.execute(select(WebSession).where(WebSession.token_hash==h,WebSession.used==False))).scalar_one_or_none()
@@ -60,3 +75,4 @@ async def webhook(request:Request):
     update=Update.model_validate(await request.json(),context={"bot":bot})
     await dp.feed_update(bot,update)
     return {"ok":True}
+    
